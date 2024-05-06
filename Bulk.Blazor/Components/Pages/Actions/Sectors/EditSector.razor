@@ -1,0 +1,78 @@
+﻿@page "/editsector"
+@using Bulk.Model.Sectors
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+
+<h3>Edit Sector</h3>
+
+
+<EditForm Model="Model" OnValidSubmit="@HandleRegistration" FormName="Edit">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Id:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Model.Id" />
+        <ValidationMessage For="@(() => Model.Id)" />
+    </div>
+
+    <div class="form-group">
+        <label for="name">Block:</label>
+        <InputText id="name" class="form-control" @bind-Value="@Model.Block" />
+        <ValidationMessage For="@(() => Model.Id)" />
+    </div>
+
+    <div class="form-group">
+        <label for="name">Number:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Model.Number" />
+        <ValidationMessage For="@(() => Model.Number)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Edit</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p>@error</p>
+}
+
+
+@code {
+    [SupplyParameterFromForm(FormName = "Edit")]
+    private EditModel Model { get; set; } = new();
+
+    private string error;
+
+    private async Task HandleRegistration()
+    {
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var response = await client.PostAsJsonAsync($"api/sectors/update={Model.Id}", Model);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                error = "Something is wrong";
+            }
+            if (error == null)
+            {
+                NavigationManager.NavigateTo("/sectors");
+            }
+        }
+    }
+
+    public class EditModel
+    {
+        public long Id { get; set; }
+        public string Block { get; set; }
+        public int Number { get; set; }
+    }
+}

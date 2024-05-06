@@ -1,0 +1,11 @@
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\bin\Debug\net8.0\Bulk.Domain.deps.json
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\bin\Debug\net8.0\Bulk.Domain.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\bin\Debug\net8.0\Bulk.Domain.pdb
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.AssemblyInfoInputs.cache
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.AssemblyInfo.cs
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\refint\Bulk.Domain.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\Bulk.Domain.pdb
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Domain\obj\Debug\net8.0\ref\Bulk.Domain.dll

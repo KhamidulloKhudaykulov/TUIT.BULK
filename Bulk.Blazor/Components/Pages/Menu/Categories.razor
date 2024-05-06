@@ -1,0 +1,87 @@
+﻿@page "/categories"
+
+@using Bulk.Model.Categories
+@using Bulk.Service.Extensions
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+
+<h3>Categories</h3>
+
+<div class="d-flex justify-content-end">
+    <button type="button" class="m-1 btn btn-primary" @onclick = "Add_Category">Add</button>
+    <button type="button" class="m-1 btn btn-success" @onclick="Edit_Category">Edit</button>
+    <button type="button" class="m-1 btn btn-danger" @onclick="Delete_Category">Delete</button>
+</div>
+
+@if(CategoriesList != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in CategoriesList)
+            {
+                <tr>
+                    <th>@category.Id</th>
+                    <th>@category.Name</th>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    [CascadingParameter]
+    HttpContext httpContext { get; set; }
+
+    private List<CategoryViewModel> CategoriesList { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var client = new HttpClient();
+        client.BaseAddress = new Uri("https://localhost:7279/");
+        var response = await client.GetAsync("api/categories");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            var json = JsonConvert.DeserializeObject<Response>(content);
+            try
+            {
+                if(json.Data.ToString().Length > 0)
+                {
+                    CategoriesList = JsonConvert.DeserializeObject<List<CategoryViewModel>>(json.Data.ToString());
+                }
+            }
+            catch
+            {
+                var category = JsonConvert.DeserializeObject<CategoryViewModel>(json.Data.ToString());
+            }
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private void Add_Category()
+    {
+        NavigationManager.NavigateTo("/addcategory");
+    }
+
+    private void Edit_Category()
+    {
+        NavigationManager.NavigateTo("/editproduct");
+    }
+
+    private void Delete_Category()
+    {
+        NavigationManager.NavigateTo("/deletecategory");
+    }
+}

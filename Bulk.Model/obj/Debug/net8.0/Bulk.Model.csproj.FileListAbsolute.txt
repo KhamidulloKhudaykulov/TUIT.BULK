@@ -1,0 +1,15 @@
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\bin\Debug\net8.0\Bulk.Model.deps.json
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\bin\Debug\net8.0\Bulk.Model.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\bin\Debug\net8.0\Bulk.Model.pdb
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\bin\Debug\net8.0\Bulk.Domain.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\bin\Debug\net8.0\Bulk.Domain.pdb
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.csproj.AssemblyReference.cache
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.AssemblyInfoInputs.cache
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.AssemblyInfo.cs
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.csproj.CoreCompileInputs.cache
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.csproj.CopyComplete
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\refint\Bulk.Model.dll
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\Bulk.Model.pdb
+C:\Users\Xamidullo\source\repos\Bulk\Bulk.Model\obj\Debug\net8.0\ref\Bulk.Model.dll

@@ -1,0 +1,105 @@
+﻿@page "/addproduct"
+@using Bulk.Model.Categories
+@using Bulk.Model.Products
+@using Bulk.Service.Extensions
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+
+<h3>Add Product</h3>
+
+<EditForm Model="@Product" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Product Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@Product.Name" />
+        <ValidationMessage For="@(() => Product.Name)" />
+    </div>
+
+    <div class="form-group">
+        <label for="desc">Description:</label>
+        <InputText id="desc" class="form-control" @bind-Value="@Product.Description" />
+        <ValidationMessage For="@(() => Product.Name)" />
+    </div>
+
+    <div class="form-group">
+        <label for="category">Category Id:</label>
+        <InputNumber id="category" class="form-control" @bind-Value="@Product.CategoryId" />
+        <ValidationMessage For="@(() => Product.CategoryId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="name">Count:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Product.Count" />
+        <ValidationMessage For="@(() => Product.Count)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; }
+
+    [SupplyParameterFromForm(FormName = "Create")]
+    private ProductCreateModel Product { get; set; } = new();
+
+    private string errorMessage;
+
+    private List<CategoryViewModel> Categories { get; set; } = new();
+
+
+    private async Task HandleRegistration()
+    {
+        try
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            var response = await client.PostAsJsonAsync("api/products/post", Product);
+            response.EnsureSuccessStatusCode();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        NavigationManager.NavigateTo("/products");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            var response = await client.GetAsync("api/categories");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var content = JsonConvert.DeserializeObject<Response>(json);
+                try
+                {
+                    try
+                    {
+                        Categories = JsonConvert.DeserializeObject<List<CategoryViewModel>>(content.Data.ToString());
+
+                    }
+                    catch
+                    {
+                        var data = JsonConvert.DeserializeObject<CategoryViewModel>(content.Data.ToString());
+                        Categories.Add(data);
+                    }
+                }
+                catch
+                {
+                    Categories = new();
+                }
+            }
+        }
+    }
+}

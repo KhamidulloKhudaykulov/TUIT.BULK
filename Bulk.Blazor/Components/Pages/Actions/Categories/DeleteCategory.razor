@@ -1,0 +1,55 @@
+﻿@page "/deletecategory"
+@using Bulk.Model.Categories
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+<h3>Delete Category</h3>
+
+<EditForm Model="@Category" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Category Id:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Category.Id" />
+        <ValidationMessage For="@(() => Category.Id)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Delete</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p>@error</p>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    private CategoryViewModel Category { get; set; } = new();
+
+    private string error;
+
+    private async Task HandleRegistration()
+    {
+        using(var client = new HttpClient())
+        {
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            try
+            {
+                var response = await client.DeleteAsync($"api/categories/delete={Category.Id}");
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+            if(error == null)
+            {
+                NavigationManager.NavigateTo("/categories");
+            }
+        }
+    }
+}

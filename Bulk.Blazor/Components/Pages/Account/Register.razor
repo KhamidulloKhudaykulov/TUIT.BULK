@@ -1,0 +1,77 @@
+﻿@page "/register"
+@using Bulk.Model.Actors
+@using Microsoft.AspNetCore.Antiforgery
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+
+
+<EditForm Model="@user" OnValidSubmit="@HandleRegistration" FormName="Post">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@user.Name" />
+        <ValidationMessage For="@(() => user.Name)" />
+    </div>
+
+    <div class="form-group">
+        <label for="surname">Surname:</label>
+        <InputText id="surname" class="form-control" @bind-Value="@user.Surname" />
+        <ValidationMessage For="@(() => user.Surname)" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="@user.Email" />
+        <ValidationMessage For="@(() => user.Email)" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <InputText type="password" id="password" class="form-control" @bind-Value="@user.Password" />
+        <ValidationMessage For="@(() => user.Password)" />
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Phone:</label>
+        <InputText type="phone" id="confirmPassword" class="form-control" @bind-Value="@user.Phone" />
+        <ValidationMessage For="@(() => user.Phone)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+@if(errorMessage != null)
+{
+    <p style="color: red">@errorMessage</p>
+}
+
+
+@code {
+    [SupplyParameterFromForm(FormName = "Post")]
+    private ActorCreateModel user { get; set; }
+    private string errorMessage { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        user ??= new();
+        return base.OnInitializedAsync();
+    }
+
+    public async Task HandleRegistration()
+    {
+        try
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            user.Role = "Admin";
+            var response = await client.PostAsJsonAsync("api/actors/post", user);
+            response.EnsureSuccessStatusCode();
+        }
+        catch(Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        NavigationManager.NavigateTo("/");
+    }
+}

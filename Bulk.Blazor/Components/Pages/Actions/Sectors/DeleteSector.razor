@@ -1,0 +1,58 @@
+﻿@page "/deletesector"
+@using Bulk.Model.Sectors
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+
+<h3>Delete Sector</h3>
+
+<EditForm Model="Model" OnValidSubmit="@HandleRegistration" FormName="Delete">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Id:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Model.Id" />
+        <ValidationMessage For="@(() => Model.Id)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Delete</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if(!string.IsNullOrEmpty(error))
+{
+    <p>@error</p>
+}
+
+@code {
+    [SupplyParameterFromForm(FormName = "Delete")]
+    private DeleteModel Model { get; set; } = new();
+
+    private string error;
+
+
+    private async Task HandleRegistration()
+    {
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var action = await client.DeleteAsync($"api/sectors/delete={Model.Id}");
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+            }
+        }
+    }
+
+    public class DeleteModel
+    {
+        public long Id { get; set; }
+    }
+}

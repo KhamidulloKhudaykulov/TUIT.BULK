@@ -1,0 +1,79 @@
+﻿@page "/addproduct_sector"
+@using Bulk.Model.Sectors
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+<h3>Add Product</h3>
+
+<EditForm Model="@Model" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Sector Id:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Model.Id" />
+        <ValidationMessage For="@(() => Model.Id)" />
+    </div>
+
+    <div class="form-group">
+        <label for="desc">Product Id:</label>
+        <InputNumber id="desc" class="form-control" @bind-Value="@Model.ProductId" />
+        <ValidationMessage For="@(() => Model.ProductId)" />
+    </div>
+
+    <div class="form-group">
+        <label for="name">Count:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Model.Count" />
+        <ValidationMessage For="@(() => Model.Count)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if(error != null)
+{
+    <p>@error</p>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    private CreateModel Model { get; set; } = new();
+
+    private string error;
+
+    private async Task HandleRegistration()
+    {
+        if(Model.Count < 1)
+        {
+            error = "Count must be more than 1";
+        }
+        else
+        {
+            try
+            {
+                var client = new HttpClient();
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var response = await client.PostAsJsonAsync($"api/sectors/addproduct={Model.Id}={Model.ProductId}={Model.Count}", Model);
+            }
+            catch (Exception ex)
+            {
+                error = "Something is wrong";
+            }
+            if (error == null)
+            {
+                NavigationManager.NavigateTo("/sectors");
+            }
+        }
+    }
+
+    public class CreateModel
+    {
+        public long Id { get; set; }
+        public long ProductId { get; set; }
+        public int Count { get; set; } = 0;
+    }
+}

@@ -1,0 +1,54 @@
+﻿@page "/addsector"
+@using Bulk.Model.Sectors
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+<h3>Add Sector</h3>
+
+<EditForm Model="@Sector" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Sector Block:</label>
+        <InputText id="name" class="form-control" @bind-Value="@Sector.Block" />
+        <ValidationMessage For="@(() => Sector.Block)" />
+    </div>
+
+    <div class="form-group">
+        <label for="desc">Number:</label>
+        <InputNumber id="desc" class="form-control" @bind-Value="@Sector.Number" />
+        <ValidationMessage For="@(() => Sector.Number)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm(FormName = "Create")]
+    private SectorCreateModel Sector { get; set; } = new();
+
+    private string errorMessage;
+
+    private async Task HandleRegistration()
+    {
+        try
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            var response = await client.PostAsJsonAsync("api/sectors/post", Sector);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        if(errorMessage == null)
+        {
+            NavigationManager.NavigateTo("/sectors");
+        }
+    }
+}

@@ -1,0 +1,99 @@
+﻿@page "/products"
+@using Bulk.Model.Products
+@using Bulk.Service.Extensions
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+@rendermode InteractiveServer
+
+<h3>Products</h3>
+<div class="d-flex justify-content-end">
+    <button type="button" class="m-1 btn btn-primary" @onclick="Add_Button">Add</button>
+    <button type="button" class="m-1 btn btn-success" @onclick="Edit_Button">Edit</button>
+    <button type="button" class="m-1 btn btn-danger" @onclick="Delete_Button">Delete</button>
+</div>
+
+
+@if (ProductsList == null || ProductsList.Count < 1)
+{
+    <p>Product List is empty</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in ProductsList)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Category.Name</td>
+                    <td>@product.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ProductViewModel> ProductsList { get; set; }
+    private int Count;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using(HttpClient client = new HttpClient())
+        {
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            var response = await client.GetAsync("api/products");
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var content = JsonConvert.DeserializeObject<Response>(json);
+                try
+                {
+                    try
+                    {
+                        ProductsList = JsonConvert.DeserializeObject<List<ProductViewModel>>(content.Data.ToString());
+
+                    }
+                    catch
+                    {
+                        var data = JsonConvert.DeserializeObject<ProductViewModel>(content.Data.ToString());
+                        ProductsList.Add(data);
+                    }
+                }
+                catch
+                {
+                    ProductsList = new();
+                }
+            }
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private void Add_Button()
+    {
+        NavigationManager.NavigateTo("/addproduct");
+    }
+
+    private void Edit_Button()
+    {
+        NavigationManager.NavigateTo("/editproduct");
+    }
+
+    private void Delete_Button()
+    {
+        NavigationManager.NavigateTo("/deleteproduct");
+    }
+}

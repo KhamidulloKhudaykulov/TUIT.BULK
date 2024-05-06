@@ -1,0 +1,57 @@
+﻿@page "/addcategory"
+
+@using Bulk.Model.Categories
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+<h3>Add Category</h3>
+
+<EditForm Model="@Category" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Category Name:</label>
+        <InputText id="name" class="form-control" @bind-Value="@Category.Name" />
+        <ValidationMessage For="@(() => Category.Name)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p>@error</p>   
+}
+
+
+@code {
+    [SupplyParameterFromForm]
+    private CategoryCreateModel Category { get; set; } = new();
+
+    private string error { get; set; }
+
+    private async Task HandleRegistration()
+    {
+        using(var client = new HttpClient())
+        {
+            try
+            {
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var response = await client.PostAsJsonAsync("api/categories/post", Category);
+            }
+            catch
+            {
+                error = "Something is wrong";
+            }
+        }
+        if(error == null)
+        {
+            NavigationManager.NavigateTo("/categories");
+        }
+    }
+}

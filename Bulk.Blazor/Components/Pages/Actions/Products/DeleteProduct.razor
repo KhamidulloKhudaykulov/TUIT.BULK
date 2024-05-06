@@ -1,0 +1,50 @@
+﻿@page "/deleteproduct"
+@using Bulk.Model.Products
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+<h3>Delete Product</h3>
+
+
+<EditForm Model="Product" OnValidSubmit="@HandleRegistration" FormName="Create">
+    <AntiforgeryToken />
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Id:</label>
+        <InputNumber id="name" class="form-control" @bind-Value="@Product.Id" />
+        <ValidationMessage For="@(() => Product.Id)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Delete</button>
+    <AntiforgeryToken />
+</EditForm>
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <p>@error</p>
+}
+
+@code {
+    [SupplyParameterFromForm]
+    private ProductViewModel Product { get; set; } = new();
+    private string error { get; set; }
+
+    private async Task HandleRegistration()
+    {
+        using(var client = new HttpClient())
+        {
+            try
+            {
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var action = await client.DeleteAsync($"api/products/delete={Product.Id}");
+            }
+            catch(Exception ex)
+            {
+                error = ex.Message;
+            }
+        }
+    }
+}

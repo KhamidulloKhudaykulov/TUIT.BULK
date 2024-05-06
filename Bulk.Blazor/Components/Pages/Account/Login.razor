@@ -1,0 +1,78 @@
+﻿@page "/login"
+@using Bulk.Domain.Entities
+@using Bulk.Model.Actors
+@using Bulk.Model.Logins
+@using System.Security.Claims
+@using Bulk.Service.Extensions
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Newtonsoft.Json
+@inject NavigationManager NavigationManager
+
+
+
+
+<EditForm Model="@user" OnValidSubmit="@HandleRegistration" FormName="Get">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="@user.Email" />
+        <ValidationMessage For="@(() => user.Email)" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <InputText type="password" id="password" class="form-control" @bind-Value="@user.Password" />
+        <ValidationMessage For="@(() => user.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@if(errorMessage != null)
+{
+    <p style="color: red">@errorMessage</p>
+}
+
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; }
+
+    [SupplyParameterFromForm(FormName = "Get")]
+    private LoginViewModel user { get; set; } = new();
+
+    private ActorViewModel signedUser { get; set; } = new();
+
+    private string errorMessage { get; set; }
+
+    private async Task HandleRegistration()
+    {
+        try
+        {
+            using(var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://localhost:7279/");
+                var response = await client.GetAsync($"api/actors/username={user.Email}+{user.Password}");
+                var json = await response.Content.ReadAsStringAsync();
+                var content = JsonConvert.DeserializeObject<Response>(json);
+                signedUser = JsonConvert.DeserializeObject<ActorViewModel>(content.Data.ToString());
+            }
+            var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Email, signedUser.Email),
+                    new Claim(ClaimTypes.Role, signedUser.Role)
+                };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(principal);
+        }
+        catch(Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        NavigationManager.NavigateTo("/");
+    }
+}

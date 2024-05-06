@@ -1,0 +1,102 @@
+﻿@page "/sectors"
+@using Bulk.Model.Sectors
+@using Bulk.Service.Extensions
+@using Microsoft.AspNetCore.Antiforgery
+@using Microsoft.AspNetCore.Authorization
+@using Newtonsoft.Json
+
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@attribute [RequireAntiforgeryToken(required: false)]
+@attribute [Authorize(Roles = "Admin, SuperAdmin")]
+
+
+<h3>Sectors</h3>
+<div class="d-flex justify-content-end">
+    <button type="button" class="m-1 btn btn-primary" @onclick="Add_Button">Add</button>
+    <button type="button" class="m-1 btn btn-success" @onclick="Edit_Button">Edit</button>
+    <button type="button" class="m-1 btn btn-danger" @onclick="Delete_Button">Delete</button>
+    <button type="button" class="m-1 btn btn-danger" @onclick="AddProduct_Button">Add Product</button>
+</div>
+
+@if (SectorsList == null || SectorsList.Count < 1)
+{
+    <p>Sectors List is empty</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Block</th>
+                <th>Number</th>
+                <th>Products Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in SectorsList)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Block</td>
+                    <td>@product.Number</td>
+                    <td>@product.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<SectorViewModel> SectorsList { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        using(var client = new HttpClient())
+        {
+            client.BaseAddress = new Uri("https://localhost:7279/");
+            var response = await client.GetAsync("api/sectors");
+            try
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                var content = JsonConvert.DeserializeObject<Response>(json);
+                try
+                {
+                    SectorsList = JsonConvert.DeserializeObject<List<SectorViewModel>>(content.Data.ToString());
+
+                }
+                catch
+                {
+                    var data = JsonConvert.DeserializeObject<SectorViewModel>(content.Data.ToString());
+                    SectorsList.Add(data);
+                }
+            }
+            catch
+            {
+                SectorsList = new();
+            }
+        }
+        await base.OnInitializedAsync();
+    }
+
+    private void Add_Button()
+    {
+        NavigationManager.NavigateTo("/addsector");
+    }
+
+    private void Edit_Button()
+    {
+        NavigationManager.NavigateTo("/editsector");
+    }
+
+    private void Delete_Button()
+    {
+        NavigationManager.NavigateTo("/deletesector");
+    }
+
+    private void AddProduct_Button()
+    {
+        NavigationManager.NavigateTo("/addproduct_sector");
+    }
+}
